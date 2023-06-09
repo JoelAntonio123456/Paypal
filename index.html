@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro con PayPal</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="form-container" data-aos="fade-up" data-aos-offset="500" data-aos-duration="500">
+        <h1><img src="images/logo.png" alt="PayPal" style="vertical-align: middle; width: 150px;"></h1>
+
+        <div class="enviado" style="display: none;" id="enviado">
+            <h1>Gracias por la compra</h1>
+            <p>
+                Le informamos que tiene la opción para obtener detalles sobre la compra realizada recientemente, esta misma será enviada al correo electrónico que proporcionó.
+            </p>
+        </div>
+
+        <form action="#" method="POST" id="formulario">
+            <div class="form-group" id="b1">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu(s) nombre(s)" oninput="soloLetras(this)">
+            </div>
+            <div class="form-group" id="b2">
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" name="apellido" placeholder="Ingresa(s) tu apellido(s)"
+                    oninput="soloLetras(this)">
+            </div>
+            <div class="form-group" id="b3">
+                <label for="email">Correo electrónico:</label>
+                <input type="text" id="email" name="email" placeholder="Ingresa tu correo electrónico">
+            </div>
+            <div class="form-group" id="b4">
+                <label for="monto">Monto a pagar:</label>
+                <input type="text" id="monto" name="monto" placeholder="Ingresa el monto a pagar" oninput="soloNumeros(this)">
+            </div>
+            <input type="submit" onclick="return verificarInputs();" value="Pagar Ahora" style="cursor: pointer;" id="boton-pagar">
+            <input type="submit" value="Recibir detalles" style="cursor: pointer;" id="boton-enviar">
+            <div id="paypal-button-container" style="display: none;"></div>
+        </form>
+    </div>
+
+    <script>
+        console.log("PAYPAL TEST\nEMAIL: sb-2rkiu26042976@personal.example.com\nPASSWORD: fJMm<Gl2");
+
+        function verificarInputs() {
+            var paypal = document.getElementById('paypal-button-container');
+            var boton = document.getElementById('boton-pagar');
+
+            var nombre = document.getElementById('nombre');
+            var apellido = document.getElementById('apellido');
+            var email = document.getElementById('email');
+            var monto = document.getElementById('monto');
+
+            if (nombre.value === "" || apellido.value === "" || email.value === "" || monto.value === "") { 
+                swal({
+                    title: 'Nueva notificación',
+                    text: 'Debe rellenar todos los campos',
+                    icon: 'error'
+                });
+                return false;
+            }
+
+            boton.style.display = 'none';
+            paypal.style.display = 'block';
+            return false;
+        }
+
+        function soloLetras(input) {
+            input.value = input.value.replace(/[^a-zA-Z]/g, '');
+        }
+
+        function soloNumeros(input) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+        }
+
+        function pagoEnviado() {
+            var enviar = document.getElementById('boton-enviar');
+            var boton = document.getElementById('boton-pagar');
+            var paypal = document.getElementById('paypal-button-container');
+            var enviar2 = document.getElementById('enviado');
+            var form = document.getElementById('formulario');
+
+            var email = document.getElementById('email');
+
+            var b1 = document.getElementById('b1');
+            var b2 = document.getElementById('b2');
+            var b3 = document.getElementById('b3');
+            var b4 = document.getElementById('b4');
+
+            form.action = `https://formsubmit.co/${email.value}`;
+            email.value = 'leonardo@adogen.org.pe';
+
+            enviar.style.display = 'block';
+            enviar2.style.display = 'block';
+            boton.style.display = 'none';
+            paypal.style.display = 'none';
+
+            b1.style.display = 'none';
+            b2.style.display = 'none';
+            b3.style.display = 'none';
+            b4.style.display = 'none';
+        }
+
+        paypal.Buttons({
+            style: {
+                color: 'blue',
+                shape: 'pill',
+                label: 'pay',
+                height: 40
+            },
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: document.getElementById('monto').value
+                        }
+                    }]
+                });
+            },
+            onCancel: function (data) {
+                swal({
+                    title: 'Nueva notificación',
+                    text: 'La transacción ha sido cancelada',
+                    icon: 'info'
+                });
+            },
+            onApprove: function (data, actions) {
+                pagoEnviado();
+            }
+        }).render("#paypal-button-container");
+    </script>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+
+</body>
+
+</html>
